@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Indian Stocks &amp; Indices — Live View &amp; Trend Analysis</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="brand">
+        <span class="brand-mark">◈</span>
+        <div>
+          <h1>Stock Market Intelligence</h1>
+          <p class="subtitle">10 large-cap NSE names + key indices — pick a symbol for chart &amp; trend read</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn btn-ghost" id="btnRefresh" aria-label="Refresh data">Refresh</button>
+        <span class="live-pill" id="dataStatus">Connecting…</span>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="panel panel-watchlist full-width" aria-labelledby="watchlist-title">
+        <div class="panel-head">
+          <h2 id="watchlist-title">Indices &amp; popular stocks</h2>
+          <span class="badge">Click a card to load the chart</span>
+        </div>
+        <div class="watchlist-section">
+          <h3 class="watchlist-label">Indices</h3>
+          <div class="watchlist-grid" id="watchlistIndices" role="list"></div>
+        </div>
+        <div class="watchlist-section">
+          <h3 class="watchlist-label">NSE large caps</h3>
+          <div class="watchlist-grid" id="watchlistStocks" role="list"></div>
+        </div>
+      </section>
+
+      <section class="panel panel-chart full-width" aria-labelledby="chart-title">
+        <div class="panel-head">
+          <h2 id="chart-title">holo chart</h2>
+          <span class="badge">Last ~60 trading days</span>
+        </div>
+        <div class="quote-bar" id="quoteBar">
+          <div class="quote-item">
+            <span class="label">Last</span>
+            <strong id="qLast">—</strong>
+          </div>
+          <div class="quote-item">
+            <span class="label">Change</span>
+            <strong id="qChange">—</strong>
+          </div>
+          <div class="quote-item">
+            <span class="label">Open</span>
+            <strong id="qOpen">—</strong>
+          </div>
+          <div class="quote-item">
+            <span class="label">Day range</span>
+            <strong id="qRange">—</strong>
+          </div>
+          <div class="quote-item">
+            <span class="label">Volume</span>
+            <strong id="qVol">—</strong>
+          </div>
+        </div>
+        <div id="chartContainer" class="chart-wrap">
+          <div class="chart-legend" id="chartLegend" aria-live="polite">Hover the chart to see OHLC</div>
+        </div>
+        <p class="chart-footnote">
+          Green candles: close &gt; open. Red candles: close &lt; open. Wicks show session high and low.
+        </p>
+
+        <div class="terms-below" aria-labelledby="terms-title">
+          <h3 class="terms-title" id="terms-title">Stock market basic terms</h3>
+          <div class="terms-table-wrap" role="region" aria-label="Glossary of stock market terms">
+            <table class="terms-table">
+              <thead>
+                <tr>
+                  <th scope="col">Term</th>
+                  <th scope="col">Meaning</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Candlestick</th>
+                  <td>Each bar shows open, high, low, and close for one session. The body is open-to-close; thin lines (wicks) are the range.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Bullish / bearish candle</th>
+                  <td>Bullish means the close finished above the open (often colored green). Bearish means the close finished below the open (often red).</td>
+                </tr>
+                <tr>
+                  <th scope="row">OHLC</th>
+                  <td>Open, High, Low, Close — the four prices that define a single period on a candlestick chart.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Volume</th>
+                  <td>How many shares traded in a period. Spikes can confirm interest around breakouts or reversals.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Moving average (MA)</th>
+                  <td>A smoothed line of past closes. Traders often compare short vs. long MAs to judge trend.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Support / resistance</th>
+                  <td>Price zones where buying (support) or selling (resistance) has repeatedly appeared. Not guarantees—context matters.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Volatility</th>
+                  <td>How much prices swing. Higher volatility means wider candles and more uncertainty.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Bull market / bear market</th>
+                  <td>A bull market is a broad period of rising prices and optimism; a bear market is a sustained drop (often 20%+ from highs) and more cautious sentiment.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Market capitalisation (market cap)</th>
+                  <td>Total value of a company’s listed shares: share price × number of shares. Used to compare size—large-cap, mid-cap, small-cap.</td>
+                </tr>
+                <tr>
+                  <th scope="row">P/E ratio (price-to-earnings)</th>
+                  <td>Share price divided by earnings per share (EPS). A rough valuation yardstick—compare within the same sector, not in isolation.</td>
+                </tr>
+                <tr>
+                  <th scope="row">EPS (earnings per share)</th>
+                  <td>Company profit allocated to each share. Trends in EPS matter as much as a single number.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Dividend &amp; dividend yield</th>
+                  <td>A dividend is cash paid to shareholders from profits. Yield is annual dividend per share divided by price—higher isn’t always “better” if payouts aren’t sustainable.</td>
+                </tr>
+                <tr>
+                  <th scope="row">IPO (initial public offering)</th>
+                  <td>When a private company first sells shares to the public. New listings can be volatile; read the prospectus and risks.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Liquidity</th>
+                  <td>How easily you can buy or sell without moving the price much. Large, heavily traded names usually have better liquidity.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Bid–ask spread</th>
+                  <td>The gap between the best buy (bid) and best sell (ask) quote. Tighter spreads usually mean lower trading friction.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Long vs. short</th>
+                  <td>Long means you benefit if the price rises. Short (where allowed) means you benefit if the price falls—risk can be unlimited, so it needs strict discipline.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Stop-loss / limit order</th>
+                  <td>A stop-loss aims to cap loss by exiting near a set price. A limit order only fills at your price or better. Both depend on liquidity and gaps.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Index (e.g. Nifty, Sensex)</th>
+                  <td>A basket of stocks used to track a market or theme. You can’t buy the index directly—you trade index funds, ETFs, or derivatives that track it.</td>
+                </tr>
+                <tr>
+                  <th scope="row">ETF (exchange-traded fund)</th>
+                  <td>A fund that holds many securities and trades like a stock on the exchange. Offers diversification in one ticker; check expense ratio and tracking error.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Portfolio &amp; diversification</th>
+                  <td>Your combined holdings. Diversification spreads risk across assets or sectors so one bad outcome doesn’t dominate.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Blue chip</th>
+                  <td>Widely recognised, often large, established companies with a long track record—not risk-free, but often seen as relatively stable.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Correction</th>
+                  <td>A shorter, sharp pullback (often around 10% from recent highs) within an ongoing trend—different from a multi-month bear market.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel panel-analysis full-width" aria-labelledby="analysis-title">
+        <div class="panel-head">
+          <h2 id="analysis-title">Trend analysis &amp; prediction helper</h2>
+          <span class="badge badge-warn">Educational — not financial advice</span>
+        </div>
+        <div class="analysis-grid">
+          <div class="analysis-card" id="analysisSummary">
+            <h3>Signal</h3>
+            <p class="lead" id="signalText">Computing…</p>
+            <p class="muted" id="signalDetail"></p>
+          </div>
+          <div class="analysis-card">
+            <h3>Indicators (from loaded data)</h3>
+            <ul class="stat-list" id="indicatorList"></ul>
+          </div>
+          <div class="analysis-card prose">
+            <h3>How to read this</h3>
+            <p>
+              This page estimates a short-term <strong>trend bias</strong> using simple moving averages and recent momentum.
+              Real markets depend on news, earnings, rates, and liquidity — use this only as a starting point for learning and
+              always do your own research before investing.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Data: Yahoo Finance (demo fallback if offline). Symbols include Nifty / Sensex / Bank Nifty and major <code>.NS</code> names.
+        For reliable live quotes in the browser, run <code>python server.py</code> and open
+        <code>http://127.0.0.1:8765/</code>.
+      </p>
+    </footer>
+  </div>
+</body>
+</html>

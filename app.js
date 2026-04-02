@@ -28,6 +28,7 @@
 
   let currentSymbol = "RELIANCE.NS";
   let watchlistMap = /** @type {Record<string, object>} */ ({});
+  let autoRefreshTimer = null;
 
   const CHART_RANGE = "3mo";
   const CHART_INTERVAL = "1d";
@@ -108,15 +109,11 @@
   }
 
   async function fetchJson(url) {
-    const isLocal =
-      window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
-    if (isLocal) {
-      const local = await fetch("/api/yahoo?url=" + encodeURIComponent(url), {
-        credentials: "omit",
-      }).catch(() => null);
-      if (local && local.ok) {
-        return local.json();
-      }
+    const local = await fetch("/api/yahoo?url=" + encodeURIComponent(url), {
+      credentials: "omit",
+    }).catch(() => null);
+    if (local && local.ok) {
+      return local.json();
     }
     const tryDirect = await fetch(url, { credentials: "omit" }).catch(() => null);
     if (tryDirect && tryDirect.ok) {
@@ -586,7 +583,7 @@
         regularMarketDayHigh: last.high,
         regularMarketVolume: isIndexSymbol(currentSymbol) ? null : 8e6 + Math.floor(Math.random() * 4e6),
       };
-      setStatus("demo", "Demo chart (network blocked live feed)");
+      setStatus("err", "Live feed unavailable. Retrying...");
     }
 
     setCandles(candles);
@@ -600,6 +597,13 @@
     setStatus("", "Loading…");
     await loadWatchlist();
     await loadChart();
+  }
+
+  function startAutoRefresh() {
+    if (autoRefreshTimer != null) clearInterval(autoRefreshTimer);
+    autoRefreshTimer = setInterval(() => {
+      loadAll();
+    }, 15000);
   }
 
   function onWatchlistClick(e) {
@@ -617,4 +621,5 @@
   els.wlStocks.addEventListener("click", onWatchlistClick);
   els.btnRefresh.addEventListener("click", loadAll);
   loadAll();
+  startAutoRefresh();
 })();
